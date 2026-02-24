@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>SportFlow - Planner</title>
+</head>
+<body>
+    <h1>Training Plannen</h1>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="planner.html">Training Plannen</a></li>
+            <li><a href="statistieken.html">Statistieken</a></li>
+            <li><a href="status.html">Systeem Status</a></li>
+        </ul>
+    </nav>
+    <hr>
+    <h2>Nieuwe training toevoegen</h2>
+    <form>
+        <label>Datum:</label><br>
+        <input type="date" name="datum" required>
+        <br><br>
+
+        <label>Soort workout:</label><br>
+        <input type="text" name="workout" placeholder="bijv. Krachttraining" required>
+        <br><br>
+
+        <label>Duur (minuten):</label><br>
+        <input type="number" name="duur" required>
+        <br><br>
+
+        <button type="submit">Opslaan in Database</button>
+    </form>
+    <hr>
+    <h3>Eerdere trainingen</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Datum</th>
+                <th>Workout</th>
+                <th>Duur</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>hier moet data van database</td>
+                <td>hier moet data van database</td>
+                <td>hier moet data van database</td>
+                <td><a href="#hier komt een link naar deel van power bi">Extra info</a></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
