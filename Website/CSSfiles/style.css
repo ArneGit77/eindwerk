@@ -1,0 +1,48 @@
+/* General page settings */
+body {
+    font-family: 'Segoe UI', Tahoma;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+/* Central container to keep content aligned */
+.container {
+    width: 80%;
+    margin: 20px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+}
+
+/* Header styling */
+h1, h2, h3 {
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+
+/* Navigation bar styling */
+nav ul {
+    background: #2c3e50;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    justify-content: space-around;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    padding: 15px 20px;
+    display: block;
+    font-weight: bold;
+}
+
+nav ul li a:hover {
+    background-color: #3498db; /* Changes color when hovering */
+    transition: 0.3s;
+}
