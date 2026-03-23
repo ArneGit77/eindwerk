@@ -1,55 +1,104 @@
-/* Form styling (Login & Planner) */
 form {
-    display: flex;
-    flex-direction: column;
-    max-width: 400px; /* Limits the width of forms */
+    background: var(--panel-bg);
+    padding: 30px;
+    border-left: 5px solid var(--racing-red);
+    border-right: 2px solid var(--electric-blue);
+    position: relative;
+}
+
+label {
+    font-family: var(--font-impact);
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    color: var(--electric-blue);
+    display: block;
 }
 
 input {
-    padding: 10px;
-    margin-top: 5px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
+    width: 100%;
+    background: #020508;
+    border: 1px solid #1a2a40;
+    padding: 12px;
+    color: #fff;
+    font-size: 1rem;
+    margin-bottom: 20px !important;
 }
 
-/* Button styling */
-button {
-    background-color: #27ae60;
-    color: white;
-    padding: 12px;
+input:focus {
+    outline: none;
+    border-color: var(--racing-red);
+    box-shadow: 0 0 8px rgba(255, 0, 60, 0.4);
+}
+
+button, input[type="submit"] {
+    background: var(--racing-red);
+    color: #fff;
     border: none;
-    border-radius: 4px;
+    padding: 15px 30px;
+    font-family: var(--font-impact);
+    font-size: 1.5rem;
+    text-transform: uppercase;
     cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 20px;
+    width: 100%;
+    transition: 0.2s;
+    letter-spacing: 2px;
 }
 
 button:hover {
-    background-color: #219150;
-    transform: translateY(-2px); /* Slight lift effect */
+    background: var(--electric-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 124, 240, 0.4);
 }
 
-/* Table styling (Training history) */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    background: var(--panel-bg);
 }
 
-th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+thead tr {
+    background: var(--racing-red);
 }
 
 th {
-    background-color: #3498db;
+    font-family: var(--font-impact);
+    text-transform: uppercase;
+    padding: 15px;
     color: white;
 }
 
-/* Zebra striping for table rows */
-tr:nth-child(even) {
-    background-color: #f2f2f2;
+td {
+    padding: 15px;
+    border-bottom: 1px solid #1a2a40;
+    font-size: 0.9rem;
+}
+
+tbody tr:hover {
+    background: rgba(0, 124, 240, 0.1);
+    border-left: 4px solid var(--electric-blue);
+}
+
+.status-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.status-card {
+    background: #020508;
+    border: 1px solid #1a2a40;
+    padding: 20px;
+    text-align: center;
+}
+
+.status-card strong {
+    color: var(--electric-blue);
+    font-family: var(--font-impact);
+    display: block;
+}
+
+.status-card span {
+    font-size: 2rem;
+    color: var(--racing-red);
+    font-family: var(--font-impact);
 }

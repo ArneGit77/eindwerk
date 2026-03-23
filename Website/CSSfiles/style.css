@@ -1,48 +1,87 @@
-/* General page settings */
-body {
-    font-family: 'Segoe UI', Tahoma;
-    line-height: 1.6;
+@import url('https://fonts.googleapis.com/css2?family=Teko:wght@400;700&family=Montserrat:wght@400;900&display=swap');
+
+:root {
+    --dark-base: #050a10; 
+    --panel-bg: #0d1520;  
+    --electric-blue: #007cf0;  
+    --racing-red: #ff003c;  
+    --text-main: #e0e6ed; 
+    --font-impact: 'Teko', sans-serif;
+    --font-body: 'Montserrat', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    background-color: #f4f7f6;
-    color: #333;
 }
 
-/* Central container to keep content aligned */
-.container {
-    width: 80%;
-    margin: 20px auto;
-    background: white;
+body {
+    background-color: var(--dark-base);
+    background-image: radial-gradient(circle at 50% 50%, #101e30 0%, #050a10 100%);
+    color: var(--text-main);
+    font-family: var(--font-body);
     padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+    line-height: 1.5;
 }
 
-/* Header styling */
-h1, h2, h3 {
-    color: #2c3e50;
-    border-bottom: 2px solid #3498db;
-    padding-bottom: 10px;
+h1 {
+    font-family: var(--font-impact);
+    font-size: 5rem;
+    text-transform: uppercase;
+    line-height: 0.8;
+    background: linear-gradient(to right, var(--racing-red), var(--electric-blue));
+    -webkit-background-clip: text;
+    background-clip: text;    
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 10px rgba(255, 0, 60, 0.3));
 }
 
-/* Navigation bar styling */
+h2 {
+    font-family: var(--font-impact);
+    text-transform: uppercase;
+    font-size: 2.5rem;
+    color: var(--racing-red);
+    letter-spacing: 1px;
+    border-bottom: 2px solid var(--electric-blue);
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+nav {
+    margin-bottom: 40px;
+}
+
 nav ul {
-    background: #2c3e50;
-    padding: 0;
     list-style: none;
     display: flex;
-    justify-content: space-around;
+    background: var(--panel-bg);
+    padding: 5px;
+    border: 1px solid #1a2a40;
+    clip-path: polygon(2% 0%, 100% 0%, 98% 100%, 0% 100%);
 }
 
 nav ul li a {
-    color: white;
     text-decoration: none;
-    padding: 15px 20px;
+    color: var(--text-main);
+    padding: 15px 25px;
+    font-family: var(--font-impact);
+    font-size: 1.4rem;
+    text-transform: uppercase;
     display: block;
-    font-weight: bold;
+    transition: 0.3s;
 }
 
 nav ul li a:hover {
-    background-color: #3498db; /* Changes color when hovering */
-    transition: 0.3s;
+    color: #ffffff;
+    background: var(--electric-blue);
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--racing-red) 0%, transparent 100%);
+    margin: 30px 0;
 }
