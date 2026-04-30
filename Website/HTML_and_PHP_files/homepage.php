@@ -1,21 +1,24 @@
+<?php
+/**
+ * SportFlow - Homepage (na inloggen)
+ */
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/auth.php';
+vereisLogin();
+?>
 <!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
     <title>SportFlow - Home</title>
-    <link rel="stylesheet" href="../CSSFiles/style.css">
-    <link rel="stylesheet" href="../CSSFiles/components.css">
+    <link rel="stylesheet" href="../CSSfiles/style.css">
+    <link rel="stylesheet" href="../CSSfiles/components.css">
 </head>
 <body>
     <h1>SportFlow App</h1>
-    <nav>
-        <ul>
-            <li><a href="homepage.html">Home</a></li>
-            <li><a href="planner.html">Training Plannen</a></li>
-            <li><a href="statistieken.html">Statistieken</a></li>
-            <li><a href="status.html">Systeem Status</a></li>
-        </ul>
-    </nav>
+
+    <?php require __DIR__ . '/_nav.php'; ?>
+
     <hr>
     <h2>Welkom bij SportFlow</h2>
     <p>
