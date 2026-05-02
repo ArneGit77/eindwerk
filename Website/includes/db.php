@@ -8,8 +8,8 @@
 
 $db_host = 'localhost';
 $db_name = 'sportflow';
-$db_user = 'root';
-$db_pass = '';   // ➤ Voeg hier je wachtwoord toe als je er ooit een instelt
+$db_user = 'sportflow_user';
+$db_pass = 'SportFlow2026!';
 
 try {
     $pdo = new PDO(

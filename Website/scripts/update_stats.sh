@@ -15,8 +15,8 @@
 # Wordt automatisch elke 5 minuten gestart door cron.
 
 # ➤ Database instellingen — pas aan indien nodig
-DB_USER="root"
-DB_PASS=""
+DB_USER="sportflow_user"
+DB_PASS="SportFlow2026!"
 DB_NAME="sportflow"
 
 # ─── Metingen ──────────────────────────────────────────
