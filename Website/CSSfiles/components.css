@@ -1,9 +1,15 @@
+/* ════════════════════════════════════════════
+   SportFlow - Components CSS
+   Racing red/blue stijl, opgekuist
+   ════════════════════════════════════════════ */
+
+/* ─── Forms ─────────────────────────────── */
 form {
     background: var(--panel-bg);
     padding: 30px;
     border-left: 5px solid var(--racing-red);
     border-right: 2px solid var(--electric-blue);
-    position: relative;
+    margin-bottom: 30px;
 }
 
 label {
@@ -12,24 +18,56 @@ label {
     text-transform: uppercase;
     color: var(--electric-blue);
     display: block;
+    margin-top: 10px;
 }
 
-input {
+input, select {
     width: 100%;
     background: #020508;
     border: 1px solid #1a2a40;
     padding: 12px;
     color: #fff;
     font-size: 1rem;
-    margin-bottom: 20px !important;
+    margin-bottom: 15px;
+    font-family: var(--font-body);
 }
 
-input:focus {
+input:focus, select:focus {
     outline: none;
     border-color: var(--racing-red);
     box-shadow: 0 0 8px rgba(255, 0, 60, 0.4);
 }
 
+/* Optgroup in dropdown */
+select optgroup {
+    color: var(--electric-blue);
+    font-style: normal;
+    font-weight: bold;
+}
+
+select option {
+    color: #fff;
+    background: #020508;
+}
+
+/* Dynamische veldgroepen */
+.velden-groep {
+    padding: 15px;
+    margin: 15px 0;
+    background: rgba(0, 124, 240, 0.05);
+    border-left: 3px solid var(--electric-blue);
+}
+
+/* Inline form in tabel (voor verwijder knop) */
+.inline-form {
+    display: inline;
+    padding: 0;
+    border: none;
+    background: none;
+    margin: 0;
+}
+
+/* ─── Buttons ────────────────────────────── */
 button, input[type="submit"] {
     background: var(--racing-red);
     color: #fff;
@@ -42,6 +80,7 @@ button, input[type="submit"] {
     width: 100%;
     transition: 0.2s;
     letter-spacing: 2px;
+    margin-top: 20px;
 }
 
 button:hover {
@@ -50,16 +89,15 @@ button:hover {
     box-shadow: 0 5px 15px rgba(0, 124, 240, 0.4);
 }
 
-/* ──────────────────────────────────────────
-   Kleine "verwijder" knop in tabel
-   ────────────────────────────────────────── */
 .btn-small {
     padding: 6px 14px;
     font-size: 0.9rem;
     width: auto;
     letter-spacing: 1px;
+    margin: 0;
 }
 
+/* ─── Tabel ──────────────────────────────── */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -75,22 +113,30 @@ th {
     text-transform: uppercase;
     padding: 15px;
     color: white;
+    text-align: left;
 }
 
 td {
     padding: 15px;
     border-bottom: 1px solid #1a2a40;
     font-size: 0.9rem;
+    vertical-align: top;
 }
 
 tbody tr:hover {
     background: rgba(0, 124, 240, 0.1);
-    border-left: 4px solid var(--electric-blue);
 }
 
+.details-cel {
+    max-width: 400px;
+    font-size: 0.85rem;
+    color: #b8c4d0;
+}
+
+/* ─── Status cards ───────────────────────── */
 .status-container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 15px;
 }
 
@@ -105,6 +151,7 @@ tbody tr:hover {
     color: var(--electric-blue);
     font-family: var(--font-impact);
     display: block;
+    margin-bottom: 10px;
 }
 
 .status-card span {
@@ -113,10 +160,7 @@ tbody tr:hover {
     font-family: var(--font-impact);
 }
 
-/* ──────────────────────────────────────────
-   Alert / boodschap boxen
-   (idee 6: nette foutmeldingen i.p.v. lelijke rode tekst)
-   ────────────────────────────────────────── */
+/* ─── Alerts ─────────────────────────────── */
 .alert {
     padding: 15px 20px;
     margin: 20px 0;
@@ -129,19 +173,14 @@ tbody tr:hover {
 .alert-error {
     border-left-color: var(--racing-red);
     color: var(--racing-red);
-    box-shadow: inset 0 0 20px rgba(255, 0, 60, 0.1);
 }
 
 .alert-success {
     border-left-color: var(--electric-blue);
     color: var(--electric-blue);
-    box-shadow: inset 0 0 20px rgba(0, 124, 240, 0.1);
 }
 
-/* ──────────────────────────────────────────
-   Nav-extra: ingelogd-als label en logout
-   (idee 4: gebruikersnaam tonen op elke pagina)
-   ────────────────────────────────────────── */
+/* ─── Nav extras ─────────────────────────── */
 .nav-user {
     margin-left: auto;
     padding: 15px 25px;
