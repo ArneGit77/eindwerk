@@ -74,3 +74,15 @@ INSERT IGNORE INTO workout_types (naam, categorie) VALUES
     ('Tafeltennis',     'team'),
     ('Andere',          'anders');
  
+ 
+ CREATE TABLE IF NOT EXISTS training_oefeningen (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    training_id INT NOT NULL,
+    naam        VARCHAR(100) NOT NULL,
+    sets        INT NULL,
+    reps        INT NULL,
+    gewicht_kg  DECIMAL(6,2) NULL,
+    volgorde    INT NOT NULL DEFAULT 0,
+    FOREIGN KEY (training_id) REFERENCES trainings(id) ON DELETE CASCADE
+);
+ 

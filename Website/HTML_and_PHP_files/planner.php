@@ -1,12 +1,10 @@
 <?php
 /**
- * SportFlow - Trainings planner (uitgebreide versie)
+ * SportFlow - Trainings planner (v3)
  *
- * Functionaliteiten:
- *   - Workout type als dropdown (uit workout_types tabel)
- *   - Dynamische velden per categorie (kracht/cardio/team/anders)
- *   - Validatie afhankelijk van type
- *   - Lijst eigen trainingen + delete
+ * Krachttraining ondersteunt nu MEERDERE oefeningen,
+ * elk met eigen sets/reps/gewicht. Andere types blijven werken.
+ * Tabel toont inklapbare details per training.
  */
 
 require_once __DIR__ . '/../includes/db.php';
@@ -18,12 +16,11 @@ $foutmelding   = '';
 $succesmelding = '';
 
 // ════════════════════════════════════════════════
-// WORKOUT TYPES ophalen voor dropdown
+// WORKOUT TYPES ophalen
 // ════════════════════════════════════════════════
 $stmt = $pdo->query("SELECT naam, categorie FROM workout_types ORDER BY categorie, naam");
 $workoutTypes = $stmt->fetchAll();
 
-// Bouw een lookup: naam => categorie (nodig voor server-side validatie)
 $typeNaarCategorie = [];
 foreach ($workoutTypes as $wt) {
     $typeNaarCategorie[$wt['naam']] = $wt['categorie'];
@@ -40,18 +37,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_training'])) {
     $duur         = $_POST['duur']          ?? '';
     $intensiteit  = $_POST['intensiteit']   ?? null;
     $notitie      = trim($_POST['notitie']  ?? '');
+    $afstand      = $_POST['afstand']       ?? null;
+    $calorieen    = $_POST['calorieen']     ?? null;
 
-    // Kracht velden
-    $sets       = $_POST['sets']        ?? null;
-    $reps       = $_POST['reps']        ?? null;
-    $gewicht    = $_POST['gewicht']     ?? null;
-    $oefeningen = trim($_POST['oefeningen'] ?? '');
+    // Oefeningen array (alleen voor kracht)
+    $oef_namen    = $_POST['oef_naam']    ?? [];
+    $oef_sets     = $_POST['oef_sets']    ?? [];
+    $oef_reps     = $_POST['oef_reps']    ?? [];
+    $oef_gewicht  = $_POST['oef_gewicht'] ?? [];
 
-    // Cardio velden
-    $afstand    = $_POST['afstand']     ?? null;
-    $calorieen  = $_POST['calorieen']   ?? null;
-
-    // Validatie datum & duur (zoals voorheen)
     $minDatum = '2020-01-01';
     $maxDatum = date('Y-m-d', strtotime('+1 year'));
 
@@ -67,39 +61,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_training'])) {
         $categorie = $typeNaarCategorie[$workout_type];
 
         // Velden die niet bij deze categorie horen → leegmaken
-        if ($categorie !== 'kracht') {
-            $sets = $reps = $gewicht = null;
-            $oefeningen = null;
-        }
         if ($categorie !== 'cardio') {
             $afstand = $calorieen = null;
         }
         if ($categorie === 'kracht') {
-            $intensiteit = null; // bij kracht geen losse intensiteit
+            $intensiteit = null;
         }
 
-        // Lege strings → NULL
-        $sets       = ($sets       === '' || $sets       === null) ? null : (int) $sets;
-        $reps       = ($reps       === '' || $reps       === null) ? null : (int) $reps;
-        $gewicht    = ($gewicht    === '' || $gewicht    === null) ? null : (float) $gewicht;
-        $oefeningen = ($oefeningen === '' || $oefeningen === null) ? null : $oefeningen;
         $afstand    = ($afstand    === '' || $afstand    === null) ? null : (float) $afstand;
         $calorieen  = ($calorieen  === '' || $calorieen  === null) ? null : (int) $calorieen;
         $intensiteit = in_array($intensiteit, ['laag','midden','hoog'], true) ? $intensiteit : null;
         $notitie    = $notitie === '' ? null : $notitie;
 
+        // Insert training
         $stmt = $pdo->prepare(
             "INSERT INTO trainings
                 (user_id, datum, workout_type, duur_minuten,
-                 afstand_km, sets, reps, gewicht_kg, oefeningen,
-                 calorieen, intensiteit, notitie)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
+                 afstand_km, calorieen, intensiteit, notitie)
+             VALUES (?,?,?,?,?,?,?,?)"
         );
         $stmt->execute([
             $user_id, $datum, $workout_type, (int) $duur,
-            $afstand, $sets, $reps, $gewicht, $oefeningen,
-            $calorieen, $intensiteit, $notitie
+            $afstand, $calorieen, $intensiteit, $notitie
         ]);
+        $training_id = (int) $pdo->lastInsertId();
+
+        // Bij krachttraining: oefeningen wegschrijven
+        if ($categorie === 'kracht' && is_array($oef_namen)) {
+            $stmtOef = $pdo->prepare(
+                "INSERT INTO training_oefeningen
+                    (training_id, naam, sets, reps, gewicht_kg, volgorde)
+                 VALUES (?,?,?,?,?,?)"
+            );
+            $volgorde = 0;
+            foreach ($oef_namen as $i => $naam) {
+                $naam = trim((string) $naam);
+                if ($naam === '') continue; // skip lege rijen
+
+                $sets    = isset($oef_sets[$i])    && $oef_sets[$i]    !== '' ? (int) $oef_sets[$i]    : null;
+                $reps    = isset($oef_reps[$i])    && $oef_reps[$i]    !== '' ? (int) $oef_reps[$i]    : null;
+                $gewicht = isset($oef_gewicht[$i]) && $oef_gewicht[$i] !== '' ? (float) $oef_gewicht[$i] : null;
+
+                $stmtOef->execute([$training_id, $naam, $sets, $reps, $gewicht, $volgorde]);
+                $volgorde++;
+            }
+        }
+
         $succesmelding = "Training toegevoegd!";
     }
 }
@@ -111,6 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_training'])) {
     csrf_check();
 
     $training_id = (int) ($_POST['training_id'] ?? 0);
+    // ON DELETE CASCADE op de FK zorgt dat oefeningen mee verwijderd worden
     $stmt = $pdo->prepare("DELETE FROM trainings WHERE id = ? AND user_id = ?");
     $stmt->execute([$training_id, $user_id]);
 
@@ -134,7 +142,22 @@ $stmt = $pdo->prepare(
 $stmt->execute([$user_id]);
 $trainingen = $stmt->fetchAll();
 
-// JS-vriendelijke lookup van types → categorieën (voor dynamische velden)
+// Oefeningen per training ophalen (één query voor alles)
+$oefeningenPerTraining = [];
+if (count($trainingen) > 0) {
+    $ids = array_column($trainingen, 'id');
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    $stmtOef = $pdo->prepare(
+        "SELECT * FROM training_oefeningen
+         WHERE training_id IN ($placeholders)
+         ORDER BY training_id, volgorde"
+    );
+    $stmtOef->execute($ids);
+    foreach ($stmtOef->fetchAll() as $oef) {
+        $oefeningenPerTraining[$oef['training_id']][] = $oef;
+    }
+}
+
 $typesJson = json_encode($typeNaarCategorie, JSON_UNESCAPED_UNICODE);
 ?>
 <!DOCTYPE html>
@@ -159,7 +182,6 @@ $typesJson = json_encode($typeNaarCategorie, JSON_UNESCAPED_UNICODE);
     <form method="POST" action="" id="trainingForm">
         <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
 
-        <!-- Basis velden (altijd zichtbaar) -->
         <label>Datum:</label>
         <input type="date" name="datum" required
                min="2020-01-01"
@@ -193,19 +215,16 @@ $typesJson = json_encode($typeNaarCategorie, JSON_UNESCAPED_UNICODE);
         <label>Duur (minuten):</label>
         <input type="number" name="duur" min="1" max="1440" required>
 
-        <!-- KRACHT velden -->
+        <!-- KRACHT: dynamische lijst van oefeningen -->
         <div class="velden-groep" data-categorie="kracht" style="display:none;">
-            <label>Sets:</label>
-            <input type="number" name="sets" min="1" max="50">
+            <label>Oefeningen:</label>
+            <p class="hint">Voeg per oefening sets, reps en gewicht toe. Klik op + voor extra oefeningen.</p>
 
-            <label>Reps per set:</label>
-            <input type="number" name="reps" min="1" max="500">
+            <div id="oefeningenLijst">
+                <!-- JavaScript voegt hier rijen toe -->
+            </div>
 
-            <label>Gewicht (kg):</label>
-            <input type="number" name="gewicht" min="0" max="999" step="0.5">
-
-            <label>Oefeningen (bv. squats, bench press):</label>
-            <input type="text" name="oefeningen" maxlength="500">
+            <button type="button" id="addOefeningBtn" class="btn-secondary">+ Oefening toevoegen</button>
         </div>
 
         <!-- CARDIO velden -->
@@ -228,7 +247,7 @@ $typesJson = json_encode($typeNaarCategorie, JSON_UNESCAPED_UNICODE);
             </select>
         </div>
 
-        <!-- NOTITIE (altijd zichtbaar zodra type gekozen is) -->
+        <!-- NOTITIE -->
         <div class="velden-groep" data-categorie="kracht cardio team anders" style="display:none;">
             <label>Notitie / hoe voelde het:</label>
             <input type="text" name="notitie" maxlength="500">
@@ -246,31 +265,38 @@ $typesJson = json_encode($typeNaarCategorie, JSON_UNESCAPED_UNICODE);
         <table>
             <thead>
                 <tr>
+                    <th style="width:40px;"></th>
                     <th>Datum</th>
                     <th>Type</th>
                     <th>Duur</th>
-                    <th>Details</th>
+                    <th>Samenvatting</th>
                     <th>Acties</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($trainingen as $t): ?>
-                    <tr>
+                <?php foreach ($trainingen as $t):
+                    $oef = $oefeningenPerTraining[$t['id']] ?? [];
+                    $heeftDetails = !empty($oef) || $t['notitie'] !== null;
+                ?>
+                    <tr class="training-rij" data-id="<?= (int) $t['id'] ?>">
+                        <td>
+                            <?php if ($heeftDetails): ?>
+                                <button type="button" class="toggle-btn" aria-expanded="false">▶</button>
+                            <?php endif; ?>
+                        </td>
                         <td><?= htmlspecialchars($t['datum']) ?></td>
                         <td><?= htmlspecialchars($t['workout_type']) ?></td>
                         <td><?= htmlspecialchars($t['duur_minuten']) ?> min</td>
                         <td class="details-cel">
                             <?php
-                                $details = [];
-                                if ($t['afstand_km'] !== null)  $details[] = $t['afstand_km'] . " km";
-                                if ($t['calorieen']  !== null)  $details[] = $t['calorieen'] . " kcal";
-                                if ($t['sets']       !== null)  $details[] = $t['sets'] . " sets";
-                                if ($t['reps']       !== null)  $details[] = $t['reps'] . " reps";
-                                if ($t['gewicht_kg'] !== null)  $details[] = $t['gewicht_kg'] . " kg";
-                                if ($t['intensiteit']!== null)  $details[] = ucfirst($t['intensiteit']);
-                                if ($t['oefeningen'] !== null)  $details[] = htmlspecialchars($t['oefeningen']);
-                                if ($t['notitie']    !== null)  $details[] = "\"" . htmlspecialchars($t['notitie']) . "\"";
-                                echo $details ? implode(" • ", $details) : "<em>geen extra info</em>";
+                                $samenvatting = [];
+                                if ($t['categorie'] === 'kracht' && !empty($oef)) {
+                                    $samenvatting[] = count($oef) . " oefening" . (count($oef) === 1 ? '' : 'en');
+                                }
+                                if ($t['afstand_km']  !== null) $samenvatting[] = $t['afstand_km'] . " km";
+                                if ($t['calorieen']   !== null) $samenvatting[] = $t['calorieen'] . " kcal";
+                                if ($t['intensiteit'] !== null) $samenvatting[] = ucfirst($t['intensiteit']);
+                                echo $samenvatting ? implode(" • ", $samenvatting) : "<em>geen extra info</em>";
                             ?>
                         </td>
                         <td>
@@ -282,6 +308,41 @@ $typesJson = json_encode($typeNaarCategorie, JSON_UNESCAPED_UNICODE);
                             </form>
                         </td>
                     </tr>
+                    <?php if ($heeftDetails): ?>
+                    <tr class="details-rij" id="details-<?= (int) $t['id'] ?>" style="display:none;">
+                        <td colspan="6">
+                            <div class="details-inhoud">
+                                <?php if (!empty($oef)): ?>
+                                    <strong>Oefeningen:</strong>
+                                    <table class="oefeningen-tabel">
+                                        <thead>
+                                            <tr>
+                                                <th>Oefening</th>
+                                                <th>Sets</th>
+                                                <th>Reps</th>
+                                                <th>Gewicht</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($oef as $o): ?>
+                                                <tr>
+                                                    <td><?= htmlspecialchars($o['naam']) ?></td>
+                                                    <td><?= $o['sets'] !== null ? (int) $o['sets'] : '–' ?></td>
+                                                    <td><?= $o['reps'] !== null ? (int) $o['reps'] : '–' ?></td>
+                                                    <td><?= $o['gewicht_kg'] !== null ? $o['gewicht_kg'] . ' kg' : '–' ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                <?php endif; ?>
+
+                                <?php if ($t['notitie'] !== null): ?>
+                                    <p><strong>Notitie:</strong> <?= htmlspecialchars($t['notitie']) ?></p>
+                                <?php endif; ?>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </tbody>
         </table>
@@ -289,28 +350,72 @@ $typesJson = json_encode($typeNaarCategorie, JSON_UNESCAPED_UNICODE);
 
 <script>
 // ════════════════════════════════════════════════
-// Dynamische velden: tonen op basis van workout categorie
+// Dynamische velden per workout categorie
 // ════════════════════════════════════════════════
 const typesNaarCategorie = <?= $typesJson ?>;
 const select = document.getElementById('workoutSelect');
 const groepen = document.querySelectorAll('.velden-groep');
 
 function updateVelden() {
-    const gekozenType = select.value;
-    const categorie = typesNaarCategorie[gekozenType] || '';
-
+    const categorie = typesNaarCategorie[select.value] || '';
     groepen.forEach(groep => {
-        const categorienVoorGroep = groep.dataset.categorie.split(' ');
-        if (categorienVoorGroep.includes(categorie)) {
-            groep.style.display = 'block';
-        } else {
-            groep.style.display = 'none';
+        const groepCategories = groep.dataset.categorie.split(' ');
+        groep.style.display = groepCategories.includes(categorie) ? 'block' : 'none';
+    });
+    // Zorg dat er bij kracht minstens 1 oefening-rij staat
+    if (categorie === 'kracht' && document.querySelectorAll('.oefening-rij').length === 0) {
+        addOefeningRij();
+    }
+}
+
+select.addEventListener('change', updateVelden);
+
+// ════════════════════════════════════════════════
+// Oefeningen lijst (kracht): + en X knoppen
+// ════════════════════════════════════════════════
+const lijst = document.getElementById('oefeningenLijst');
+const addBtn = document.getElementById('addOefeningBtn');
+
+function addOefeningRij() {
+    const rij = document.createElement('div');
+    rij.className = 'oefening-rij';
+    rij.innerHTML = `
+        <input type="text"   name="oef_naam[]"    placeholder="Naam (bv. Bench Press)" maxlength="100">
+        <input type="number" name="oef_sets[]"    placeholder="Sets"     min="1" max="50">
+        <input type="number" name="oef_reps[]"    placeholder="Reps"     min="1" max="500">
+        <input type="number" name="oef_gewicht[]" placeholder="Kg"       min="0" max="999" step="0.5">
+        <button type="button" class="btn-remove" aria-label="Verwijder oefening">✕</button>
+    `;
+    lijst.appendChild(rij);
+
+    rij.querySelector('.btn-remove').addEventListener('click', () => {
+        rij.remove();
+        // Als alle rijen weg zijn, voeg een lege terug
+        if (lijst.querySelectorAll('.oefening-rij').length === 0) {
+            addOefeningRij();
         }
     });
 }
 
-select.addEventListener('change', updateVelden);
-updateVelden(); // initieel uitvoeren
+addBtn.addEventListener('click', addOefeningRij);
+
+// ════════════════════════════════════════════════
+// Tabel: inklapbare details per training
+// ════════════════════════════════════════════════
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const rij = btn.closest('.training-rij');
+        const id = rij.dataset.id;
+        const details = document.getElementById('details-' + id);
+        const open = details.style.display !== 'none';
+        details.style.display = open ? 'none' : 'table-row';
+        btn.textContent = open ? '▶' : '▼';
+        btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+    });
+});
+
+// Initieel uitvoeren
+updateVelden();
 </script>
 
 </body>
