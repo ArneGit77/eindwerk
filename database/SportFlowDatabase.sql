@@ -86,3 +86,21 @@ INSERT IGNORE INTO workout_types (naam, categorie) VALUES
     FOREIGN KEY (training_id) REFERENCES trainings(id) ON DELETE CASCADE
 );
  
+
+-- ─── Lichaamsgewicht metingen ────────────────────────────
+CREATE TABLE IF NOT EXISTS body_weight (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    user_id     INT NOT NULL,
+    gewicht_kg  DECIMAL(5,2) NOT NULL,
+    gemeten_op  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- ─── Doelen (één rij per user) ───────────────────────────
+CREATE TABLE IF NOT EXISTS goals (
+    user_id          INT PRIMARY KEY,
+    weekly_sessions  INT NULL,
+    weekly_minutes   INT NULL,
+    target_weight_kg DECIMAL(5,2) NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
