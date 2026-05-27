@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════
    SportFlow - Components CSS
-   Racing red/blue stijl + dashboard
+   Racing red/blue stijl + dashboard + statistieken
    ════════════════════════════════════════════ */
 
 /* ─── Forms ─────────────────────────────── */
@@ -49,7 +49,6 @@ select option {
     background: #020508;
 }
 
-/* Dynamische veldgroepen */
 .velden-groep {
     padding: 15px;
     margin: 15px 0;
@@ -128,7 +127,6 @@ select option {
     margin: 0;
 }
 
-/* Inline-flex form (gewicht snelinvoer op homepage) */
 .inline-flex-form {
     display: flex;
     gap: 10px;
@@ -360,7 +358,6 @@ tbody tr.training-rij:hover {
     font-family: var(--font-impact);
 }
 
-/* Grid voor de 3 weekdoel-/gewicht-kaarten */
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -410,7 +407,6 @@ tbody tr.training-rij:hover {
     color: var(--electric-blue);
 }
 
-/* Voortgangsbalk */
 .progress-bar {
     width: 100%;
     height: 14px;
@@ -426,7 +422,6 @@ tbody tr.training-rij:hover {
     transition: width 0.5s ease;
 }
 
-/* Brede kaart (gewicht historiek + doelen) */
 .dashboard-kaart-breed {
     background: var(--panel-bg);
     padding: 25px 30px;
@@ -443,7 +438,6 @@ tbody tr.training-rij:hover {
     letter-spacing: 1px;
 }
 
-/* Historiek tabel (compacter) */
 .historiek-tabel {
     margin-top: 15px;
 }
@@ -459,7 +453,6 @@ tbody tr.training-rij:hover {
     font-size: 0.9rem;
 }
 
-/* Doelen-grid: 3 kolommen naast elkaar */
 .doelen-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -468,4 +461,163 @@ tbody tr.training-rij:hover {
 
 .doelen-grid label {
     margin-top: 0;
+}
+
+/* ════════════════════════════════════════════
+   STATISTIEKEN PAGINA
+   ════════════════════════════════════════════ */
+
+.periode-filter {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.periode-knop {
+    padding: 10px 20px;
+    background: var(--panel-bg);
+    color: var(--text-main);
+    text-decoration: none;
+    font-family: var(--font-impact);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid #1a2a40;
+    transition: 0.2s;
+    font-size: 1rem;
+}
+
+.periode-knop:hover {
+    border-color: var(--electric-blue);
+    color: var(--electric-blue);
+}
+
+.periode-knop.actief {
+    background: var(--racing-red);
+    color: #fff;
+    border-color: var(--racing-red);
+}
+
+/* Uitklapbare secties */
+.stat-sectie {
+    background: var(--panel-bg);
+    margin-bottom: 20px;
+    border-left: 5px solid var(--racing-red);
+    overflow: hidden;
+}
+
+.stat-sectie summary.sectie-titel {
+    cursor: pointer;
+    padding: 20px 30px;
+    font-family: var(--font-impact);
+    text-transform: uppercase;
+    color: var(--electric-blue);
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    list-style: none;
+    user-select: none;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stat-sectie summary.sectie-titel::-webkit-details-marker {
+    display: none;
+}
+
+.stat-sectie summary.sectie-titel::after {
+    content: '▼';
+    font-size: 0.8rem;
+    margin-left: auto;
+    transition: transform 0.3s;
+    color: var(--racing-red);
+}
+
+.stat-sectie[open] summary.sectie-titel::after {
+    transform: rotate(180deg);
+}
+
+.stat-sectie summary.sectie-titel:hover {
+    background: rgba(0, 124, 240, 0.05);
+}
+
+.sectie-inhoud {
+    padding: 0 30px 30px 30px;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+.stat-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.stat-kaart {
+    background: #020508;
+    border: 1px solid #1a2a40;
+    padding: 20px;
+    text-align: center;
+}
+
+.stat-kaart strong {
+    color: var(--electric-blue);
+    font-family: var(--font-impact);
+    text-transform: uppercase;
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.stat-kaart .grote-cijfer {
+    display: block;
+    font-family: var(--font-impact);
+    font-size: 2.8rem;
+    color: var(--racing-red);
+    line-height: 1.1;
+    margin: 5px 0;
+}
+
+.stat-kaart .grote-cijfer.omhoog {
+    color: var(--racing-red);
+}
+
+.stat-kaart .grote-cijfer.omlaag {
+    color: var(--electric-blue);
+}
+
+.stat-kaart .medium-cijfer {
+    display: block;
+    font-family: var(--font-impact);
+    font-size: 1.8rem;
+    color: var(--racing-red);
+    line-height: 1.2;
+    margin: 5px 0;
+}
+
+.stat-kaart-breed {
+    background: #020508;
+    border: 1px solid #1a2a40;
+    padding: 25px;
+}
+
+.stat-kaart-breed strong {
+    color: var(--electric-blue);
+    font-family: var(--font-impact);
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    display: block;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.stat-kaart-breed canvas {
+    max-height: 280px !important;
+    margin-top: 15px;
 }
